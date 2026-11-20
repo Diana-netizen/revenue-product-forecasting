@@ -1,0 +1,14 @@
+numpy
+pandas
+scikit-learn
+lightgbm
+PyYAML
+joblib
+matplotlib
+seaborn
+optuna
+torch
+pytorch-forecasting
+fastapi
+uvicorn
+pydantic

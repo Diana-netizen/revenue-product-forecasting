@@ -1,0 +1,19 @@
+Metadata-Version: 2.4
+Name: capstone-forecast
+Version: 0.1.0
+Summary: Multi-horizon revenue forecasting system
+Requires-Python: >=3.10
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: scikit-learn
+Requires-Dist: lightgbm
+Requires-Dist: PyYAML
+Requires-Dist: joblib
+Requires-Dist: matplotlib
+Requires-Dist: seaborn
+Requires-Dist: optuna
+Requires-Dist: torch
+Requires-Dist: pytorch-forecasting
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Requires-Dist: pydantic

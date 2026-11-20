@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "echarts": "^6.1.0",
+    "echarts-for-react": "^3.1.0",
+    "lucide-react": "^1.75.0",
+    "tailwindcss": "^4.3.5"
+  }
+}

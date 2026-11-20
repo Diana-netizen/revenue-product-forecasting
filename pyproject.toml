@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "capstone-forecast"
+version = "0.1.0"
+description = "Multi-horizon revenue forecasting system"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "lightgbm",
+    "PyYAML",
+    "joblib",
+    "matplotlib",
+    "seaborn",
+    "optuna",
+    "torch",
+    "pytorch-forecasting",
+    "fastapi",
+    "uvicorn",
+    "pydantic"
+]
+
+[project.scripts]
+forecast = "forecast.run:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

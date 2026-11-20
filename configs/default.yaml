@@ -1,0 +1,78 @@
+
+project:
+  name: revenue_forecasting_capstone
+  random_seed: 42
+
+data:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  date_column: Date
+  target_column: Revenue
+  publication_column: IsPublicationDay
+
+forecast:
+  horizon: 365
+  lookback: 90
+  origins:
+    - "2023-10-01"
+    - "2024-10-01"
+    - "2025-10-01"
+
+models:
+  lgbm:
+    enabled: true
+  gru:
+    enabled: true
+  tft:
+    enabled: true
+
+evaluation:
+  quantiles:
+    - 0.10
+    - 0.50
+    - 0.90
+  metrics:
+    - MASE
+    - sMAPE
+    - PinballLoss
+
+tuning:
+  n_trials: 30
+  cv_folds: 5
+
+artifacts:
+  directory: artifacts
+
+
+paths:
+  raw_csv: data/raw/daily_revenue_volume_by_product.csv
+  processed: data/processed
+  artifacts: artifacts
+  reports: reports
+
+study:
+  start: "2018-08-01"
+  end: "2026-09-30"
+
+# weekday numbers: Monday=0 ... Sunday=6
+publication_days:
+  Product 1: [0, 1, 2, 3, 4]
+  Product 2: [0, 1, 2, 3, 4, 5, 6]
+  Product 3: [5]
+  Product 4: [0, 1, 2, 3, 4, 5, 6]
+
+validation:
+  cv_origins: ["2020-10-01", "2021-10-01", "2022-10-01", "2023-10-01", "2024-10-01"]   # 5 forward-chaining folds
+  validation_origins: ["2023-10-01", "2024-10-01"]                                       # model selection
+  test_origin: "2025-10-01"                                                              # touched once
+
+production:
+  origin: "2026-10-01"
+  end: "2027-09-30"
+
+models: [LightGBM, GRU, TFT]
+
+tuning:
+  keep_fraction: 0.3333
+  n_configs: {LightGBM: 12, GRU: 4, TFT: 3}
+  max_steps: {LightGBM: 600, GRU: 10, TFT: 10}
