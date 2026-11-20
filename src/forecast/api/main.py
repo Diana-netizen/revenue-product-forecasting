@@ -51,7 +51,6 @@ def forecast(request: ForecastRequest):
         raise HTTPException(status_code=500, detail=str(exc))
 
 
-
 @app.get("/historical")
 def historical_revenue(
     product: str | None = None,
@@ -75,19 +74,17 @@ def historical_revenue(
 
     df = df.dropna(subset=[column]).sort_values("Date")
 
-    records = []
-    for _, row in df.iterrows():
-        records.append({
-            "date": row["Date"].strftime("%Y-%m-%d"),
-            "product": row["Product"],
-            "value": float(row[column])
-        })
-
     return {
         "target": target,
-        "data": records
+        "data": [
+            {
+                "date": row.Date.strftime("%Y-%m-%d"),
+                "product": row.Product,
+                "value": float(getattr(row, column))
+            }
+            for row in df.itertuples(index=False)
+        ]
     }
-
 
 
 @app.get("/accuracy")
