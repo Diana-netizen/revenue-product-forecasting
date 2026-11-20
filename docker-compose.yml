@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     container_name: forecast-backend
     ports:
-      - "8000:8000"
+      - "8001:8000"
     restart: unless-stopped
     volumes:
       - ./artifacts:/app/artifacts:ro

@@ -1,556 +1,192 @@
-# Revenue Forecasting System
+# Revenue Product Forecasting System
 
-## 1. Project Overview
+A daily, multi-horizon probabilistic forecasting system for revenue and quantity for 4 products. It compares machine-learning and deep-learning approaches and provides a pipeline for data preparation, model evaluation, and forecast generation.
 
-This project develops a machine learning-based revenue forecasting system for the media industry. It uses historical revenue and quantity data to generate daily probabilistic forecasts across multiple media products.
+## 1. Project objectives
 
-The system is designed to forecast up to 365 days into the future, providing three prediction intervals:
+- Develop a repeatable daily forecasting pipeline for revenue and quantity.
+- Compare LightGBM, GRU, and Temporal Fusion Transformer (TFT) models.
+- Tune model hyperparameters and evaluate performance using time-series validation.
+- Compare model forecasts with a seasonal-naive benchmark.
+- Generate probabilistic forecasts at the 10th, 50th, and 90th percentiles (corresponding to lower, median and upper forecast estimates).
+-The configured forecast horizon is up to 365 days.
 
-- **P10:** Lower forecast estimate.
-- **P50:** Median forecast estimate.
-- **P90:** Upper forecast estimate.
 
-The project combines data engineering, feature engineering, machine learning, time-series validation, probabilistic forecasting, and an interactive dashboard.
+## 2. Methodology and project workflow
 
-### Key Objectives
+The project follows a pipeline-based forecasting workflow:
 
-1. Develop a reliable daily forecasting pipeline for revenue and quantity.
-2. Compare different machine learning and deep learning forecasting models.
-3. Optimise model hyperparameters using cross-validation.
-4. Evaluate forecasting accuracy against a seasonal naive benchmark.
-5. Generate probabilistic forecasts to represent forecast uncertainty.
-6. Deploy the forecasting application through a web-based dashboard and API.
+1. **Data preparation:** load and clean source data, aggregate observations daily, align publication dates, create a continuous calendar, and handle leap-day observations.
+2. **Feature engineering:** construct historical lag and seasonal features, together with known calendar and product-related features.
+3. **Model development:** train LightGBM, GRU, and TFT models for the forecasting targets.
+4. **Hyperparameter tuning:** evaluate candidate configurations using the configured validation and cross-validation procedure. The tuning implementation uses successive halving.
+5. **Backtesting and selection:** compare models across validation forecast origins. The project documentation specifies mean full-year MASE as the model-selection criterion.
+6. **Final testing:** evaluate the selected approach on the independent test origin. Test results are not used for tuning or model selection.
+7. **Production forecasting:** train the selected approach on available historical data and generate the configured production forecast.
 
----
+### 3. Evaluation metrics
 
-## 2. Models
-
-The project implements three forecasting approaches:
-
-| Model | Description |
+| Metric | Purpose |
 |---|---|
-| LightGBM | Gradient boosting framework for structured forecasting data. |
-| GRU | Gated Recurrent Unit neural network for sequential data modelling. |
-| TFT | Temporal Fusion Transformer for multi-horizon time-series forecasting. |
+| MAE | Average absolute forecast error |
+| MASE | Forecast error scaled against a benchmark |
+| sMAPE | Symmetric percentage error |
+| Pinball loss | Quantile forecast accuracy |
+| Scaled pinball loss | Scaled probabilistic forecast comparison |
+| MAE versus seasonal naive | Comparison with the benchmark |
 
-Each model is evaluated on two forecasting targets:
+The exact forecast origins, folds, and experiment settings are controlled through `configs/default.yaml`.
 
-- Revenue
-- Quantity
 
-The models generate forecasts at the 10th, 50th, and 90th percentiles.
-
----
-
-## 3. Project Structure
+## 4. Repository structure
 
 ```text
-capstone/
-│
+revenue-product-forecasting/
 ├── configs/
 │   └── default.yaml
-│
 ├── data/
 │   ├── raw/
 │   ├── processed/
-│   │   ├── model_df.parquet
-│   │   └── model_df_production.parquet
 │   └── sample/
-│
 ├── artifacts/
 │   ├── tuning/
 │   ├── models/
 │   └── production/
-│
 ├── reports/
-│
+│   ├── figures/
+│   ├── interpretation/
+│   └── tables/
 ├── src/
 │   └── forecast/
-│       ├── __init__.py
-│       ├── run.py
+│       ├── api/
+│       ├── models/
+│       ├── config.py
 │       ├── constants.py
-│       ├── ingest.py
 │       ├── features.py
 │       ├── folds.py
-│       ├── tune.py
+│       ├── ingest.py
+│       ├── interpret.py
 │       ├── metrics.py
-│       │
-│       ├── models/
-│       │   ├── __init__.py
-│       │   ├── lightgbm.py
-│       │   ├── gru.py
-│       │   └── tft.py
-│       │
-│       └── api/
-│           └── main.py
-│
+│       ├── run.py
+│       └── tune.py
 ├── frontend/
-│   ├── src/
-│   ├── package.json
-│   ├── Dockerfile
-│   └── nginx.conf
-│
-├── notebooks/
-│
+├── tests/
 ├── Dockerfile
 ├── Dockerfile.pipeline
 ├── docker-compose.yml
 ├── Makefile
 ├── pyproject.toml
 ├── requirements.txt
-├── requirements-serve.txt
-├── README.md
-└── .gitignore
+└── requirements-serve.txt
 ```
 
-*Note: The directory tree is a representation of the project structure. Update it if files are added, removed, or renamed.*
+## 5. Technology stack
 
----
+- **Data processing:** Python, pandas, NumPy, PyArrow
+- **Modelling:** LightGBM, scikit-learn, PyTorch, PyTorch Forecasting
+- **Visualisation:** Matplotlib, Seaborn, Apache ECharts
+- **Backend:** FastAPI, Uvicorn
+- **Frontend:** React, Vite, Tailwind CSS, ECharts
+- **Deployment:** Docker, Docker Compose, Nginx
 
-## 4. Technology Stack
+## 6. Setup and execution
 
-### Data Processing
-- Python
-- Pandas
-- NumPy
-- PyArrow
-
-### Machine Learning
-- LightGBM
-- Scikit-learn
-- PyTorch
-- PyTorch Forecasting
-
-### Data Visualisation
-- Matplotlib
-- Seaborn
-- Apache ECharts
-
-### Backend
-- FastAPI
-- Uvicorn
-
-### Frontend
-- React
-- Vite
-- Tailwind CSS
-- ECharts
-
-### Deployment
-- Docker
-- Docker Compose
-- Nginx
-
----
-
-## 5. Installation and Setup
-
-### Prerequisites
-
-Install the following:
+### Requirements
 
 - Python 3.12
-- Node.js and npm
 - Git
-- Docker Desktop (for containerised deployment)
+- Node.js and npm (for the frontend)
+- Docker Desktop (for containerised execution)
 
-### Clone the Repository
+### Clone the repository
 
 ```bash
-git clone <repository-url>
-cd capstone
+git clone https://github.com/Diana-netizen/revenue-product-forecasting.git
+cd revenue-product-forecasting
 ```
 
-### Create a Python Virtual Environment
+### Set up Python
 
 Windows PowerShell:
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-```
-
-### Install Python Dependencies
-
-```powershell
-pip install --upgrade pip
+python -m pip install --upgrade pip
 pip install -r requirements.txt
-```
-
-For API development:
-
-```powershell
 pip install -r requirements-serve.txt
 ```
 
-### Install Frontend Dependencies
+
+### Run pipeline stages
+
+Run from the project root:
 
 ```powershell
-cd frontend
-npm install
-cd ..
-```
-
----
-
-## 6. Configuration
-
-The project configuration is maintained in:
-
-```text
-configs/default.yaml
-```
-
-This file defines the forecasting and model-training parameters, including:
-
-- Cross-validation forecast origins.
-- Validation forecast origins.
-- Final test forecast origin.
-- Hyperparameter tuning budgets.
-- Model training steps.
-- Production forecasting period.
-
-The main forecasting constants are defined in `src/forecast/constants.py`.
-
-Current forecasting configuration includes:
-
-| Parameter | Value |
-|---|---:|
-| Lookback window | 90 days |
-| Forecast horizon | 365 days |
-| Forecast quantiles | 0.10, 0.50, 0.90 |
-| Seasonal lag | 364 days |
-| Cross-validation stride | 7 days |
-| Random seed | 42 |
-
----
-
-## 7. Data Pipeline
-
-The data pipeline transforms the raw data into a structured forecasting dataset.
-
-### Data Ingestion
-
-Implemented in:
-
-```text
-src/forecast/ingest.py
-```
-
-The ingestion process includes:
-
-1. Loading raw revenue and quantity data.
-2. Cleaning and preparing the source data.
-3. Aggregating observations at the daily level.
-4. Aligning observations to publication dates.
-5. Creating a continuous daily calendar.
-6. Generating calendar and lag features.
-7. Handling leap-day observations.
-
-Processed datasets are saved in Parquet format:
-
-```text
-data/processed/model_df.parquet
-data/processed/model_df_production.parquet
-```
-
-### Feature Engineering
-
-Implemented in:
-
-```text
-src/forecast/features.py
-```
-
-Features are constructed using historical observations and known future calendar information.
-
-Historical features include lagged revenue and quantity values, including seasonal lag features.
-
-Future-known features include calendar and product-related information.
-
-Feature preprocessing is fitted using historical training data to prevent information leakage.
-
----
-
-## 8. Model Training and Evaluation
-
-### Hyperparameter Tuning
-
-Implemented in:
-
-```text
-src/forecast/tune.py
-```
-
-The tuning process uses successive halving to allocate computational resources to promising configurations.
-
-The process includes:
-
-1. Generating candidate hyperparameter configurations.
-2. Evaluating configurations on validation folds.
-3. Retaining the strongest configurations.
-4. Evaluating surviving configurations across the cross-validation folds.
-5. Selecting the best configuration for each model.
-
-Tuning checkpoints are saved to support recovery after interrupted runs.
-
-Execute:
-
-```powershell
+python -m forecast.run ingest --config configs/default.yaml
 python -m forecast.run tune --config configs/default.yaml
-```
-
-### Backtesting
-
-Backtesting evaluates the tuned models on the designated validation forecast origins.
-
-Execute:
-
-```powershell
 python -m forecast.run backtest --config configs/default.yaml
-```
-
-The backtesting process compares model performance across the validation folds and selects the best-performing model using mean full-year MASE.
-
-### Final Testing
-
-The final test evaluates the selected forecasting approach on the independent test forecast origin.
-
-Execute:
-
-```powershell
 python -m forecast.run test --config configs/default.yaml
-```
-
-The test dataset is kept separate from hyperparameter tuning and model selection.
-
-### Production Forecasting
-
-The production stage trains the selected model using the available historical data and generates forecasts for the configured production period.
-
-Execute:
-
-```powershell
 python -m forecast.run production --config configs/default.yaml
 ```
 
-### Run the Complete Pipeline
-
-To execute the pipeline stages sequentially:
+To run all stages:
 
 ```powershell
 python -m forecast.run all --config configs/default.yaml
 ```
 
-For individual stages, use:
+Check available commands with:
 
-```text
-ingest
-tune
-backtest
-test
-production
+```powershell
+python -m forecast.run --help
 ```
 
----
+### Run the application
 
-## 9. Forecast Evaluation Metrics
-
-The project uses multiple metrics to assess forecasting performance.
-
-| Metric | Purpose |
-|---|---|
-| MAE | Measures average absolute forecast error. |
-| MASE | Measures forecast error relative to a scaled benchmark. |
-| sMAPE | Measures symmetric percentage error. |
-| Pinball Loss | Evaluates quantile forecast accuracy. |
-| Scaled Pinball Loss | Enables comparison of probabilistic forecasting performance across targets. |
-| MAE vs Seasonal Naive | Compares model MAE against the seasonal naive benchmark. |
-
-The seasonal naive model provides a benchmark against which the machine learning models are evaluated.
-
----
-
-## 10. API and Dashboard
-
-The project includes a FastAPI backend and a React-based frontend.
-
-### Backend
-
-The backend is located in:
-
-```text
-src/forecast/api/
-```
-
-It provides the API layer for the forecasting application.
-
-The health endpoint can be accessed at:
-
-```text
-http://localhost:8000/health
-```
-
-The API documentation is available at:
-
-```text
-http://localhost:8000/docs
-```
-
-**Implementation status:** The health endpoint is available. Actual model inference through the forecast endpoint must be connected to the saved production model before the dashboard can return genuine forecasts.
-
-### Frontend
-
-The frontend is located in:
-
-```text
-frontend/
-```
-
-It provides an interactive forecasting dashboard with controls for:
-
-- Product selection.
-- Forecasting model.
-- Forecast target.
-- Forecast horizon.
-- Forecast origin.
-
-The dashboard is designed to display forecast outputs and visualise the predicted values.
-
-Demo chart values should not be interpreted as actual model forecasts.
-
----
-
-## 11. Running the Application Locally
-
-### Start the Backend
-
-From the project root:
+Start the backend:
 
 ```powershell
 uvicorn forecast.api.main:app --reload --port 8000
 ```
 
-### Start the Frontend
+The documented API endpoints are:
 
-Open another terminal:
+- Health check: `http://localhost:8000/health`
+- API documentation: `http://localhost:8000/docs`
+
+If the frontend is available, install and run it in a separate terminal:
 
 ```powershell
 cd frontend
+npm install
 npm run dev
 ```
 
-The Vite development server will display the local frontend address in the terminal.
-
----
-
-## 12. Docker Deployment
-
-The project includes Docker configurations for the backend and frontend.
-
-Build and start the containers:
+Docker configuration:
 
 ```powershell
 docker compose up --build -d
-```
-
-Check running containers:
-
-```powershell
 docker compose ps
-```
-
-View logs:
-
-```powershell
-docker compose logs -f
-```
-
-Stop the application:
-
-```powershell
 docker compose down
 ```
 
-The expected application endpoints are:
 
-| Component | Address |
-|---|---|
-| Frontend | http://localhost |
-| Backend | http://localhost:8000 |
-| API Documentation | http://localhost:8000/docs |
-| Health Check | http://localhost:8000/health |
+## 8. Testing and reproducibility
 
-The production model and its required artefacts must be generated before the application can serve actual forecasts.
+The `tests/` directory contains tests and diagnostic scripts covering ingestion, feature engineering, fold construction, model inputs, tuning setup, predictions, and metrics.
 
----
+Run the pytest suite with:
 
-## 13. Reproducibility
-
-The project uses a fixed random seed:
-
-```python
-SEED = 42
+```powershell
+pytest
 ```
 
-This supports reproducibility across model training and evaluation.
+## 9. Limitations and data considerations
 
-The configuration file controls the training and evaluation settings. Tuning checkpoints allow completed fold evaluations to be reused when a training run is interrupted, provided the configuration remains compatible.
+- Forecast performance depends on the quality and coverage of historical data.
+- Deep-learning model training may require substantial computing resources.
+- Probabilistic forecasts represent uncertainty and are not guarantees.
+- The independent test set must remain separate from model tuning and selection.
+- Data access and publication must comply with applicable organisational and institutional requirements.
 
----
-
-## 14. Current Project Status
-
-The project is being developed in stages.
-
-| Component | Status |
-|---|---|
-| Data ingestion and processing | Implemented |
-| Feature engineering | Implemented |
-| LightGBM model | Implemented |
-| GRU model | Implemented |
-| TFT model | Implemented |
-| Hyperparameter tuning | Implemented |
-| Resumable tuning checkpoints | Implemented |
-| Validation backtesting | In progress |
-| Independent final testing | Pending |
-| Production model generation | Pending |
-| FastAPI health endpoint | Implemented |
-| Production model inference API | Pending |
-| Frontend dashboard | Implemented |
-| Docker configuration | Prepared |
-
-Update this section as each stage is completed.
-
----
-
-## 15. Limitations
-
-The following considerations apply:
-
-- Deep learning model training can be computationally expensive, particularly when using CPU-only hardware.
-- Forecast accuracy depends on historical data quality and the availability of relevant explanatory features.
-- Probabilistic forecasts represent uncertainty and should not be interpreted as guaranteed revenue outcomes.
-- The final model should only be selected after validation backtesting.
-- The independent test results should not be used to tune or select models.
-- The dashboard should only be used for operational forecasting once the production inference endpoint has been connected and tested.
-
----
-
-## 16. Author
-
-**Project:** Daily Multi-Horizon Probabilistic Revenue Forecasting System
-
-**Author:** Diana Otieno
-
-**Programme:** MSc Data Science and Analytics
-
-**Institution:** Strathmore University
-
-**Application Domain:** Media Industry
-
----
-
-## 17. Licence
-
-This project was developed for academic and analytical purposes. Usage and distribution are subject to the applicable institutional and organisational data policies.
