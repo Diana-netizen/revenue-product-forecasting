@@ -5,6 +5,7 @@ from functools import lru_cache
 from pathlib import Path
 
 import pandas as pd
+import os
 
 from forecast.api.schemas import (
     ForecastRequest,
@@ -13,8 +14,13 @@ from forecast.api.schemas import (
 )
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
+# PROJECT_ROOT = Path(__file__).resolve().parents[3]   #for local deployment
+
+PROJECT_ROOT = Path(
+    os.environ.get("PROJECT_ROOT", "/opt/render/project/src")
+)  # For github deployment
 FORECAST_FILE = PROJECT_ROOT / "reports" / "production_forecast.csv"
+
 
 REQUIRED_COLUMNS = {
     "Date",
