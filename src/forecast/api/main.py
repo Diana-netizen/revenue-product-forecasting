@@ -12,7 +12,8 @@ from forecast.api.service import generate_forecast
 
 
 # Works in both local development and Docker
-ROOT_DIR = Path.cwd()
+# ROOT_DIR = Path.cwd()
+ROOT_DIR = Path(__file__).resolve().parents[3]
 DATA_DIR = ROOT_DIR / "data"
 REPORTS_DIR = ROOT_DIR / "reports"
 

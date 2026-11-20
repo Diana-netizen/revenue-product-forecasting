@@ -86,13 +86,16 @@ function App() {
   );
 
   const forecastTotal = forecastData.reduce(
-    (sum, row) => sum + Number(row.median || 0), 0
-  );
+    (sum, row) => sum + (Number(row.median ?? row.P50 ?? row.p50) || 0), 0);
 
+  // Find the LightGBM accuracy result for the selected target
   const maseRow = accuracyData.find(row =>
-    row.MASE !== undefined && row.MASE !== null
+    String(row.Model || "").toLowerCase() === "lightgbm" &&
+    String(row.Target || "").toLowerCase() === selectedTarget.toLowerCase() &&
+    row.MASE !== undefined &&
+    row.MASE !== null
   );
-
+  
   const metrics = [
     {
       label: selectedTarget === "Revenue" ? "Historical Revenue" : "Historical Quantity",
@@ -111,7 +114,7 @@ function App() {
       icon: TrendingUp,
     },
     {
-      label: "Forecast Accuracy",
+      label: "Forecast Accuracy (MASE)",
       value: maseRow ? Number(maseRow.MASE).toFixed(3) : "—",
       icon: Activity,
     },
