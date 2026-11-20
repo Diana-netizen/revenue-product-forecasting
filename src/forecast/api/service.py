@@ -13,12 +13,9 @@ from forecast.api.schemas import (
     ForecastResponse,
 )
 
-
 # PROJECT_ROOT = Path(__file__).resolve().parents[3]   #for local deployment
 
-PROJECT_ROOT = Path(
-    os.environ.get("PROJECT_ROOT", "/opt/render/project/src")
-)  # For github deployment
+PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", "/opt/render/project/src"))  # For github deployment
 FORECAST_FILE = PROJECT_ROOT / "reports" / "production_forecast.csv"
 
 

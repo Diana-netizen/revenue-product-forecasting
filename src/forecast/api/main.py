@@ -2,6 +2,7 @@
 import pandas as pd
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
+import os
 
 from forecast.api.schemas import (
     ForecastRequest,
